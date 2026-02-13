@@ -1,64 +1,103 @@
 {% extends 'todos/base.html' %}
 
 {% block title %}
-<title>Todo list</title>
+<title>Todo App | CI/CD Verified</title>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<style>
+  .cicd-banner {
+    background: linear-gradient(90deg, #0d6efd, #6610f2);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
 
-  <!-- title row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-9">
-      <div class="page-header">
-        <h1>
-          Todo List - CI/CD Working ✅
-        </h1>
-      </div>
-    </div>
+  .dark-mode {
+    background-color: #121212 !important;
+    color: #f1f1f1 !important;
+  }
+
+  .dark-mode .list-group-item {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+  }
+</style>
+
+<div class="container" id="appContainer">
+
+  <!-- CI/CD Banner -->
+  <div class="cicd-banner">
+    <h1>🚀 CI/CD PIPELINE SUCCESSFUL</h1>
+    <p>Deployed automatically using Jenkins + Docker</p>
+    <p><b>Total Todos:</b> {{ todo_list|length }}</p>
+    <button class="btn btn-light btn-sm" onclick="toggleTheme()">Toggle Dark Mode</button>
   </div>
 
-  <!-- Add a todo row -->
+  <!-- Add todo -->
   <div class="row">
     <div class="offset-md-2 col-lg-9">
       <form method="post" action="{% url 'todos:add' %}">
         {% csrf_token %}
         <div class="form-row">
           <div class="col-md-6">
-            <input type="text" class="form-control" name="title" placeholder="Do laundry" required>
+            <input type="text" class="form-control" name="title" placeholder="Add new task..." required>
           </div>
           <div class="col-md-6">
-            <button type="submit" name="submit" class="btn btn-outline-primary">
-              Add
+            <button type="submit" class="btn btn-success">
+              ➕ Add Todo
             </button>
           </div>
         </div>
       </form>
     </div>
   </div>
+
   <hr />
 
-  <!-- todo list row -->
+  <!-- Todo list -->
   <div class="row">
     <div class="offset-md-2 col-lg-6">
       <div class="list-group">
         {% for todo in todo_list %}
         <div class="list-group-item {% if todo.isCompleted %} todo-complete {% endif %}">
-          <form style="display: inline;" method="post" action="{% url 'todos:update' todo.id %}">
+          <form style="display:inline;" method="post" action="{% url 'todos:update' todo.id %}">
             {% csrf_token %}
-            <input type="checkbox" name="isCompleted"
+            <input type="checkbox"
                    onchange="this.form.submit()"
-                   {% if todo.isCompleted %} checked {% endif %}
-                   class="todo-status-checkbox">
+                   {% if todo.isCompleted %}checked{% endif %}>
           </form>
           {{ todo.title }}
-          <a href="{% url 'todos:delete' todo.id %}">
-            <i class="far fa-trash-alt"></i>
+          <a href="{% url 'todos:delete' todo.id %}" class="float-right">
+            🗑️
           </a>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-center">
+          🎉 No todos! You’re free!
         </div>
         {% endfor %}
       </div>
     </div>
   </div>
+
+  <!-- Footer -->
+  <div class="row mt-4">
+    <div class="col text-center text-muted">
+      <small>Build Time: <span id="buildTime"></span></small>
+    </div>
+  </div>
+
 </div>
+
+<script>
+  function toggleTheme() {
+    document.getElementById("appContainer").classList.toggle("dark-mode");
+  }
+
+  document.getElementById("buildTime").innerText = new Date().toLocaleString();
+</script>
+
 {% endblock %}
